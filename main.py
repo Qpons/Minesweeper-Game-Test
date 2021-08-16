@@ -9,6 +9,7 @@ y_axis_size = 0
 mine_count = 0
 minefield_btn_list = []
 minefield_mine_list = []
+safe_count = 0
 
 setup_frame = Frame(root)
 setup_frame.grid(row=0, column=0)
@@ -39,6 +40,7 @@ def build_minefield():
     global minefield_mine_list
     global mine_count
     global mine_frame
+    global safe_count
     mine_frame.destroy()
     mine_frame = Frame(root)
     mine_frame.grid(row=1, column=0)
@@ -48,11 +50,13 @@ def build_minefield():
     row_size = int(x_axis_entry.get())
     column_size = int(y_axis_entry.get())
     mine_count = int(mine_count_entry.get())
-    if (0 >= row_size > 20) or (0 >= column_size > 20) or (0 >= mine_count > 20):
+    safe_count = (row_size*column_size) - mine_count
+    if (0 >= row_size > 20) or (0 >= column_size > 20) or (safe_count <= 0):
         print('Error')
         messagebox.showerror('Error!', 'Mine Count and Minefield Size Out of Range!')
     else:
         minefield_btn_list = []
+        minefield_mine_list = []
         for i in range(column_size):
             temp_row_list = []
             temp_mine_list = []
@@ -64,6 +68,7 @@ def build_minefield():
                 temp_mine_list.append(is_mine)
             minefield_btn_list.append(temp_row_list)
             minefield_mine_list.append(temp_mine_list)
+        #Keep placing mines randomly until mine count reaches 0
         while mine_count > 0:
             rand_row = randrange(row_size)
             rand_column = randrange(column_size)
@@ -75,18 +80,22 @@ def build_minefield():
 
 
 def mine_check(mine_row, mine_column):
+    global safe_count
     print(mine_row)
     print(mine_column)
-    minefield_btn_list[mine_row][mine_column].config(relief=SUNKEN)  
+    minefield_btn_list[mine_row][mine_column].config(relief=SUNKEN)
+    #If current button is a mine then end game
     if minefield_mine_list[mine_row][mine_column] == 1:
         minefield_btn_list[mine_row][mine_column]['text'] = ':('
         minefield_btn_list[mine_row][mine_column]['bg'] = 'red'
         minefield_btn_list[mine_row][mine_column]['fg'] = 'white'
         messagebox.showerror('Game Over!', 'Stepped on a Mine :(')
-    else:
-        minefield_btn_list[mine_row][mine_column]['text'] = ':D'
-        minefield_btn_list[mine_row][mine_column]['bg'] = 'green'
-        minefield_btn_list[mine_row][mine_column]['fg'] = 'white'
+    #Otherwise, check to see how many mines are nearby and change button text
+    elif minefield_mine_list[mine_row][mine_column] == 0:
+        minefield_mine_list[mine_row][mine_column] = 2
+        safe_count -= 1
+        if safe_count == 0:
+            messagebox.showinfo('Winner!', 'All mines avoided!')
         nearby_mines = 0
         for i in range(-1,2):
             for j in range(-1,2):
@@ -97,4 +106,5 @@ def mine_check(mine_row, mine_column):
         minefield_btn_list[mine_row][mine_column]['text'] = str(nearby_mines)
         minefield_btn_list[mine_row][mine_column]['bg'] = 'green'
         minefield_btn_list[mine_row][mine_column]['fg'] = 'white'
+
 mainloop()

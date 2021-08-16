@@ -87,5 +87,14 @@ def mine_check(mine_row, mine_column):
         minefield_btn_list[mine_row][mine_column]['text'] = ':D'
         minefield_btn_list[mine_row][mine_column]['bg'] = 'green'
         minefield_btn_list[mine_row][mine_column]['fg'] = 'white'
-    
+        nearby_mines = 0
+        for i in range(-1,2):
+            for j in range(-1,2):
+                if mine_row+i >= int(x_axis_entry.get()) or mine_row+i < 0 or mine_column+j >= int(y_axis_entry.get()) or mine_column+j < 0:
+                    print('Ignore')
+                elif minefield_mine_list[mine_row+i][mine_column+j] == 1:
+                    nearby_mines += 1
+        minefield_btn_list[mine_row][mine_column]['text'] = str(nearby_mines)
+        minefield_btn_list[mine_row][mine_column]['bg'] = 'green'
+        minefield_btn_list[mine_row][mine_column]['fg'] = 'white'
 mainloop()
